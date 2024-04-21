@@ -81,17 +81,12 @@ how_many = st.number_input(
 
 st.divider()
 
-
 st.header(f'Classement des villes avec taux de criminalité les {showing}')
 
-def filter_data(df, year, categories, min_size_city):
+def get_ranking(df, year, categories, min_size_city, showing):
+
     df_filtered = df[(df['Annee'] == year) & (df['Population'] >= min_size_city) & (df['Categorie'].isin(categories))]
 
-    return df_filtered
-
-df_filtered = filter_data(df, year_chosen, categories_chosen, min_size_city)
-
-def get_ranking(df, showing):
     df_ranking = df.groupby('Commune').agg({'Faits': 'sum', 'Population': 'mean'})
 
     df_ranking['Taux pour mille'] = df_ranking['Faits'] / df_ranking['Population'] * 1000
@@ -106,7 +101,7 @@ def get_ranking(df, showing):
 
     return df_ranking
 
-df_ranking = get_ranking(df_filtered, showing)
+df_ranking = get_ranking(df, year_chosen, categories_chosen, min_size_city, showing)
 
 ranks = ""
 
@@ -188,4 +183,4 @@ fig.update_layout(
     yaxis_title='Taux pour mille',
 )
 
-st.plotly_chart(fig)
+st.plotly_chart(fig, use_container_width=True)

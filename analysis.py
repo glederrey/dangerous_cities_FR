@@ -137,6 +137,15 @@ if len(cities_chosen) > 0:
         str_res = f"**{city}** est la {int(df_ranking.loc[city]['Rang']):d}e / {len(df_ranking)} ville{nbr_inhab}avec le plus {'haut' if showing == 'plus hauts' else 'bas'} taux de criminalité en France en {year_chosen} avec {int(df_ranking.loc[city]['Faits']):d} faits pour {int(df_ranking.loc[city]['Population']):d} habitants ({df_ranking.loc[city]['Taux pour mille']:.2f}‰)."
         st.write(str_res)
 
+        tmp = df[(df['Commune'] == city) & (df['Annee'] == year_chosen) & (df['Categorie'].isin(categories_chosen))][['Categorie', 'Faits']]
+        
+        tmp = tmp.set_index('Categorie')
+
+        tmp.sort_index(inplace=True)
+
+        with st.expander("Détails par catégorie"):
+            st.dataframe(tmp, use_container_width=True)
+
 st.divider()
 
 st.header('Évolution au cours du temps')

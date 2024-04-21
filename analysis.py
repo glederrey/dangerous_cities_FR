@@ -4,6 +4,7 @@
 
 import pandas as pd
 
+from plotly import graph_objects as go
 import streamlit as st
 from streamlit_searchbox import st_searchbox
 
@@ -117,29 +118,72 @@ st.write(ranks)
 with st.expander("Voir la liste complète"):
     st.dataframe(df_ranking, use_container_width=True)
 
-st.markdown("""
-Si vous cherchez une ville spécifique, vous pouvez la retrouver en cherchant ci-dessous:
-""")
-
 list_cities = df_ranking.index.tolist()
 
-# function with list of labels
-def search_city(searchterm: str, list_cities):
-    return [city for city in list_cities if searchterm.lower() in city.lower()]
-
-search_city_func = lambda x: search_city(searchterm=x, list_cities=list_cities)
-
-
-# pass search function to searchbox
-selected_value = st_searchbox(
-    search_city_func    ,
-    key="city_searchbox",
+cities_chosen = st.multiselect(
+    "Vous cherchez des villes en particulier?",
+    list_cities,
+    [],
+    label_visibility='visible',
 )
 
-if selected_value:
+if len(cities_chosen) > 0:
 
-    nbr_inhab = " " if min_size_city == 0 else f", de plus de {min_size_city} habitants, "
+    for city in cities_chosen:
 
-    str_res = f"**{selected_value}** est la {int(df_ranking.loc[selected_value]['Rang']):d}e / {len(df_ranking)} ville{nbr_inhab}avec le plus {'haut' if showing == 'plus hauts' else 'bas'} taux de criminalité en France en {year_chosen} avec {int(df_ranking.loc[selected_value]['Faits']):d} faits pour {int(df_ranking.loc[selected_value]['Population']):d} habitants ({df_ranking.loc[selected_value]['Taux pour mille']:.2f}‰)."
-    st.write(str_res)
+        nbr_inhab = " " if min_size_city == 0 else f", de plus de {min_size_city} habitants, "
 
+        str_res = f"**{city}** est la {int(df_ranking.loc[city]['Rang']):d}e / {len(df_ranking)} ville{nbr_inhab}avec le plus {'haut' if showing == 'plus hauts' else 'bas'} taux de criminalité en France en {year_chosen} avec {int(df_ranking.loc[city]['Faits']):d} faits pour {int(df_ranking.loc[city]['Population']):d} habitants ({df_ranking.loc[city]['Taux pour mille']:.2f}‰)."
+        st.write(str_res)
+
+st.divider()
+
+st.header('Évolution au cours du temps')
+
+list_cities_evo = df['Commune'].unique()
+
+cities_chosen_evo = st.multiselect(
+    "Choississez les villes pour lesquelles vous voulez voir l'évolution",
+    list_cities_evo,
+    [],
+    label_visibility='visible',
+)
+
+categories_chosen_evo = st.multiselect(
+    "Quelle catégories souhaitez-vous sélectionner?",
+    categories,
+    categories,
+    label_visibility='visible',
+    key='categories_evo',
+)
+
+def filter_data_evo(df, cities, categories):
+    df_filtered = df[(df['Commune'].isin(cities)) & (df['Categorie'].isin(categories))]
+
+    df_filtered = df_filtered.groupby(['Commune', 'Annee']).agg({'Faits': 'sum', 'Population': 'mean'}).reset_index()
+
+    df_filtered['Taux pour mille'] = df_filtered['Faits'] / df_filtered['Population'] * 1000
+
+    return df_filtered
+
+df_filtered_evo = filter_data_evo(df, cities_chosen_evo, categories_chosen_evo)
+
+fig = go.Figure()
+
+for city in cities_chosen_evo:
+    df_city = df_filtered_evo[df_filtered_evo['Commune'] == city]
+
+    fig.add_trace(go.Scatter(
+        x=df_city['Annee'],
+        y=df_city['Taux pour mille'],
+        mode='lines+markers',
+        name=city,
+    ))
+
+fig.update_layout(
+    title=f"Évolution du taux de criminalité pour {', '.join(cities_chosen_evo)}",
+    xaxis_title='Année',
+    yaxis_title='Taux pour mille',
+)
+
+st.plotly_chart(fig)

@@ -1,0 +1,8 @@
+streamlit
+streamlit_extras
+statsmodels
+scikit-learn
+xgboost
+plotly
+ipykernel
+pandas==2.2.2

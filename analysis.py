@@ -96,11 +96,12 @@ def get_ranking(df, showing):
     df_ranking['Taux pour mille'] = df_ranking['Faits'] / df_ranking['Population'] * 1000
 
     if showing == 'plus hauts':
-        df_ranking.sort_values(by='Taux pour mille', ascending=False, inplace=True)
+        ascending = False
     else:
-        df_ranking.sort_values(by='Taux pour mille', ascending=True, inplace=True)
+        ascending = True
 
-    df_ranking['Rang'] = df_ranking['Taux pour mille'].rank(ascending=False, method='min')
+    df_ranking.sort_values(by='Taux pour mille', ascending=ascending, inplace=True)
+    df_ranking['Rang'] = df_ranking['Taux pour mille'].rank(ascending=ascending, method='min')
 
     return df_ranking
 

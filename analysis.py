@@ -149,14 +149,6 @@ cities_chosen_evo = st.multiselect(
     label_visibility='visible',
 )
 
-categories_chosen_evo = st.multiselect(
-    "Quelle catégories souhaitez-vous sélectionner?",
-    categories,
-    categories,
-    label_visibility='visible',
-    key='categories_evo',
-)
-
 def filter_data_evo(df, cities, categories):
     df_filtered = df[(df['Commune'].isin(cities)) & (df['Categorie'].isin(categories))]
 
@@ -166,7 +158,7 @@ def filter_data_evo(df, cities, categories):
 
     return df_filtered
 
-df_filtered_evo = filter_data_evo(df, cities_chosen_evo, categories_chosen_evo)
+df_filtered_evo = filter_data_evo(df, cities_chosen_evo, categories_chosen)
 
 fig = go.Figure()
 

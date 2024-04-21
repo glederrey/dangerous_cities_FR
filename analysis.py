@@ -109,7 +109,7 @@ df_ranking = get_ranking(df_filtered, showing)
 ranks = ""
 
 for i in range(how_many):
-    ranks += f"{int(df_ranking.iloc[i]['Rang'])}. {df_ranking.index[i]} - {int(df_ranking.iloc[i]['Faits']):d} faits pour {int(df_ranking.iloc[i]['Population']):d} habitants ({df_ranking.iloc[i]['Taux pour mille']:.2f}‰)\n"
+    ranks += f"{int(df_ranking.iloc[i]['Rang'])}. **{df_ranking.index[i]}** - {int(df_ranking.iloc[i]['Faits']):d} faits pour {int(df_ranking.iloc[i]['Population']):d} habitants ({df_ranking.iloc[i]['Taux pour mille']:.2f}‰)\n"
 
 st.write(ranks)
 

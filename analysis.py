@@ -25,7 +25,7 @@ st.divider()
             
 st.header('Choix des paramètres')
 
-@st.cache_data
+@st.cache_data(ttl=300)
 def load_data():
 
     df = pd.DataFrame()

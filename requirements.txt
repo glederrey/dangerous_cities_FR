@@ -1,6 +1,7 @@
 streamlit
 streamlit_extras
 statsmodels
+streamlit-searchbox
 scikit-learn
 xgboost
 plotly

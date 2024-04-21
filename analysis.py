@@ -5,7 +5,7 @@
 import pandas as pd
 
 import streamlit as st
-from streamlit_extras.switch_page_button import switch_page
+from streamlit_searchbox import st_searchbox
 
 st.set_page_config(
     page_title="Villes dangereuses en France",
@@ -116,3 +116,30 @@ st.write(ranks)
 
 with st.expander("Voir la liste complète"):
     st.dataframe(df_ranking, use_container_width=True)
+
+st.markdown("""
+Si vous cherchez une ville spécifique, vous pouvez la retrouver en cherchant ci-dessous:
+""")
+
+list_cities = df_ranking.index.tolist()
+
+# function with list of labels
+def search_city(searchterm: str, list_cities):
+    return [city for city in list_cities if searchterm.lower() in city.lower()]
+
+search_city_func = lambda x: search_city(searchterm=x, list_cities=list_cities)
+
+
+# pass search function to searchbox
+selected_value = st_searchbox(
+    search_city_func    ,
+    key="city_searchbox",
+)
+
+if selected_value:
+
+    nbr_inhab = " " if min_size_city == 0 else f", de plus de {min_size_city} habitants, "
+
+    str_res = f"**{selected_value}** est la {int(df_ranking.loc[selected_value]['Rang']):d}e / {len(df_ranking)} ville{nbr_inhab}avec le plus {'haut' if showing == 'plus hauts' else 'bas'} taux de criminalité en France en {year_chosen} avec {int(df_ranking.loc[selected_value]['Faits']):d} faits pour {int(df_ranking.loc[selected_value]['Population']):d} habitants ({df_ranking.loc[selected_value]['Taux pour mille']:.2f}‰)."
+    st.write(str_res)
+

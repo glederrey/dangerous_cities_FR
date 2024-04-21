@@ -26,7 +26,13 @@ st.header('Choix des paramètres')
 
 @st.cache_data
 def load_data():
-    df = pd.read_csv('data/villes.csv')
+
+    df = pd.DataFrame()
+
+    for i in range(2016, 2024):
+        tmp = pd.read_csv(f'data/data_{i}.csv')
+
+        df = pd.concat([df, tmp])
 
     return df
 

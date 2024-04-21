@@ -119,6 +119,7 @@ with st.expander("Voir la liste complète"):
     st.dataframe(df_ranking, use_container_width=True)
 
 list_cities = df_ranking.index.tolist()
+list_cities.sort()
 
 cities_chosen = st.multiselect(
     "Vous cherchez des villes en particulier?",

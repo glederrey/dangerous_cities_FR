@@ -87,31 +87,40 @@ def get_ranking(df, year, categories, min_size_city, showing):
 
     df_filtered = df[(df['Annee'] == year) & (df['Population'] >= min_size_city) & (df['Categorie'].isin(categories))]
 
-    df_ranking = df.groupby('Commune').agg({'Faits': 'sum', 'Population': 'mean'})
-
-    df_ranking['Taux pour mille'] = df_ranking['Faits'] / df_ranking['Population'] * 1000
-
-    if showing == 'plus hauts':
-        ascending = False
+    if len(df_filtered) == 0:
+        return pd.DataFrame()
+    
     else:
-        ascending = True
 
-    df_ranking.sort_values(by='Taux pour mille', ascending=ascending, inplace=True)
-    df_ranking['Rang'] = df_ranking['Taux pour mille'].rank(ascending=ascending, method='min')
+        df_ranking = df_filtered.groupby('Commune').agg({'Faits': 'sum', 'Population': 'mean'})
 
-    return df_ranking
+        df_ranking['Taux pour mille'] = df_ranking['Faits'] / df_ranking['Population'] * 1000
+
+        if showing == 'plus hauts':
+            ascending = False
+        else:
+            ascending = True
+
+        df_ranking.sort_values(by='Taux pour mille', ascending=ascending, inplace=True)
+        df_ranking['Rang'] = df_ranking['Taux pour mille'].rank(ascending=ascending, method='min')
+
+        return df_ranking
 
 df_ranking = get_ranking(df, year_chosen, categories_chosen, min_size_city, showing)
 
-ranks = ""
+if len(df_ranking) == 0:
+    st.write("Aucune donnée disponible pour les paramètres choisis.")
+    
+else:
+    ranks = ""
 
-for i in range(how_many):
-    ranks += f"{int(df_ranking.iloc[i]['Rang'])}. **{df_ranking.index[i]}** - {int(df_ranking.iloc[i]['Faits']):d} faits pour {int(df_ranking.iloc[i]['Population']):d} habitants ({df_ranking.iloc[i]['Taux pour mille']:.2f}‰)\n"
+    for i in range(how_many):
+        ranks += f"{int(df_ranking.iloc[i]['Rang'])}. **{df_ranking.index[i]}** - {int(df_ranking.iloc[i]['Faits']):d} faits pour {int(df_ranking.iloc[i]['Population']):d} habitants ({df_ranking.iloc[i]['Taux pour mille']:.2f}‰)\n"
 
-st.write(ranks)
+    st.write(ranks)
 
-with st.expander("Voir la liste complète"):
-    st.dataframe(df_ranking, use_container_width=True)
+    with st.expander("Voir la liste complète"):
+        st.dataframe(df_ranking, use_container_width=True)
 
 list_cities = df_ranking.index.tolist()
 list_cities.sort()
